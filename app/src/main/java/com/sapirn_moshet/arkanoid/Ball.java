@@ -43,6 +43,7 @@ public class Ball
     {
         return x;
     }
+    public float getRadius() { return radius; }
 
     public void setX(float x)
     {
