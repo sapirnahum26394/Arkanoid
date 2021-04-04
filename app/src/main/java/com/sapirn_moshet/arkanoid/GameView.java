@@ -20,21 +20,24 @@ public class GameView extends View {
     private static int GAME_OVER = 3;
 
     private int gameState;
-
     private Paddle paddle;
+    private Ball ball;
+    private BrickCollection bricks;
     private Paint paddlePaint, textPaint;
     private int bgColor;
     private boolean isDraging;
     private int COLS,ROWS;
-    Thread thread;
+    Thread thread_paddle,thread_ball;
+    boolean move_ball;
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        Log.d("mylog", ">>> GameView");
 
         Random r = new Random();
         ROWS =  r.nextInt(6-2) + 2;
         COLS =  r.nextInt(7-3) + 3;
-
-
+        Log.d("mylog", ">>> row: "+ ROWS);
+        Log.d("mylog", ">>> col: "+ COLS);
 
         textPaint = new Paint();
         textPaint.setColor(Color.WHITE);
@@ -48,27 +51,34 @@ public class GameView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh)
     {
-        super.onSizeChanged(w, h, oldw, oldh);
-        Log.d("mylog", "onSizeChanged() w=" + w + ", h="+h);
+        Log.d("mylog", ">>> onSizeChanged");
+        Log.d("mylog", ">>> h: "+ h);
 
-        // create balls object
+        super.onSizeChanged(w, h, oldw, oldh);
+
         paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.YELLOW);
+        // TODO: check why on every move of the ball the ball constructor os call
+        ball = new Ball(w/2,(h-150-h/20),h/40, Color.BLUE);
+        bricks = new BrickCollection(this.ROWS,this.COLS,h, w);
     }
     protected void onDraw(Canvas canvas) {
+        Log.d("mylog", ">>> onDraw");
+
         super.onDraw(canvas);
         canvas.drawColor(bgColor);
-
         if (gameState == GET_READY) {
-            Log.d("mylog", "width: "+String.valueOf(getWidth()));
-
             canvas.drawText("!PLAY to Click", getWidth() / 2, getHeight() / 2, textPaint);
+            paddle.draw(canvas);
+            ball.draw(canvas);
+            bricks.draw(canvas);
         }
 
         if (gameState == PLAYING) {
             paddle.draw(canvas);
-
-            // check collision
-//            if (yellowBall.collideWith(redBall))
+            ball.draw(canvas);
+            bricks.draw(canvas);
+            moveBall();
+//            if (ball.collideWith(redBall))
 //            {
 //                Log.d("mylog", "GAME_OVER yellowBall.collideWith(redBall)");
 //                gameState = GAME_OVER_STATE;
@@ -80,11 +90,30 @@ public class GameView extends View {
         if (gameState == GAME_OVER)
             canvas.drawText("GAME OVER", getWidth() / 2, getHeight() / 2, textPaint);
     }
+    private void moveBall(){
+        move_ball = true;
+        if(thread_ball == null) {
+            Log.d("mylog", ">>> new thread_ball");
+            thread_ball = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (move_ball) {
+                        ball.move(getWidth(),getHeight(),paddle.getTop(),paddle.getRight(),paddle.getLeft());
+                        SystemClock.sleep(10);
+                    }
+                    thread_ball.interrupt();
+                    thread_ball=null;
+                }
+            });
+            thread_ball.start();
+        }
+    }
     public boolean onTouchEvent(MotionEvent event)
     {
+        Log.d("mylog", ">>> onTouchEvent");
+
         float tx = event.getX();
         float ty = event.getY();
-        Log.d("mylog", "onTouchEvent() tx=" + (int)tx + ", ty="+ (int)ty);
 
         switch (event.getAction())
         {
@@ -92,36 +121,33 @@ public class GameView extends View {
                 if(gameState == GET_READY || gameState == GAME_OVER)
                 {
                     gameState = PLAYING;
-                    Log.d("mylog", "width: "+String.valueOf(getWidth()));
                     paddle.setX((float)getWidth()/2);
                     invalidate();
                 }
                 else
                 {
-                    // check if red ball catch for dragging
                     if(!isDraging) {
                         isDraging = true;
-                        if(thread == null) {
-                            Log.d("mylog", ">>> new thread");
-                            thread = new Thread(new Runnable() {
+                        if(thread_paddle == null) {
+                            Log.d("mylog", ">>> new thread_paddle");
+                            thread_paddle = new Thread(new Runnable() {
                                 @Override
                                 public void run() {
                                     while (isDraging) {
                                         paddle.move(getWidth(),tx);
-                                        SystemClock.sleep(100);
+                                        SystemClock.sleep(1);
                                     }
-                                    thread.interrupt();
-                                    thread=null;
+                                    thread_paddle.interrupt();
+                                    thread_paddle=null;
                                 }
                             });
-                            thread.start();
+                            thread_paddle.start();
                         }
                     }
                 }
                 break;
+                // TODO ask Ilan what to to do in movement
             case MotionEvent.ACTION_MOVE:
-                //Log.d("mylog", "MotionEvent.ACTION_MOVE ");
-
                 if(isDraging)
                 {
                     paddle.move(getWidth(),tx);

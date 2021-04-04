@@ -15,7 +15,6 @@ public class Brick {
         this.w = w;
         brickPaint = new Paint();
         brickPaint.setColor(color);
-        brickPaint.setStrokeWidth(10);
         brickPaint.setStyle(Paint.Style.FILL);
     }
     public void draw(Canvas canvas)

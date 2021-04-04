@@ -10,11 +10,13 @@ public class Paddle {
 
     public Paddle(float x, float y, float h, float w, int color)
     {
+        Log.d("mylog", ">>> new paddle");
+
         this.x = x;
         this.y = y;
         this.hight = h;
         this.width = w;
-        this.dx = 15;
+        this.dx = 1;
         paddlePaint = new Paint();
         paddlePaint.setColor(color);
         paddlePaint.setTextAlign(Paint.Align.CENTER);
@@ -22,7 +24,7 @@ public class Paddle {
     }
     public void draw(Canvas canvas)
     {
-        canvas.drawRect(x-width/2,y,x+width/2,y+hight,paddlePaint);
+        canvas.drawRect(x-width/2,y-hight,x+width/2,y,paddlePaint);
     }
 
     public boolean collideWith(Ball ball) {
@@ -34,9 +36,6 @@ public class Paddle {
     }
     public void move(int w,float tx)
     {
-        Log.d("mylog", "w: "+String.valueOf(w));
-        Log.d("mylog", "x-this.width/2: "+String.valueOf(x - this.width / 2 ));
-        Log.d("mylog", "x+this.width/2: "+String.valueOf(x + this.width / 2 ));
 
         if( tx>0 && tx<w/2 ) {// left
             if (x - this.width / 2 > dx && x + this.width / 2 < w+dx)
@@ -68,4 +67,14 @@ public class Paddle {
     public void setH(float y)    {
         this.hight = hight;
     }
+    public float getLeft()    {
+        return x-width/2;
+    }
+    public float getRight()    {
+        return x+width/2;
+    }
+    public float getTop()    {
+        return y-hight;
+    }
+
 }
