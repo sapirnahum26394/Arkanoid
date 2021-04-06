@@ -28,10 +28,14 @@ public class Paddle {
     }
 
     public boolean collideWith(Ball ball) {
-        double dist = Math.sqrt((this.x - ball.getX())*(this.x - ball.getX()) + (this.y - ball.getY())*(this.y - ball.getY()));
+        float bx = ball.getX();
+        float by = ball.getY();
+        float br = ball.getRadius();
 
-        if(dist<(this.hight/2+ball.getRadius()))
+        if(((bx+br)<(this.x+this.width/2) && (bx-br)>(this.x-this.width/2)) && (by+br)>=(this.y-this.hight)){
             return true;
+        }
+
         return false;
     }
     public void move(int w,float tx)

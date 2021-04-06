@@ -18,8 +18,10 @@ public class Ball
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.dx = r.nextInt(10-(-10) - 10 );
-        this.dy = (r.nextInt(10-(1) + 1 ))*-1;
+        this.dx = 5;
+//                r.nextInt(10-(-10) - 10 );
+        this.dy = -7;
+//                (r.nextInt(10-(1) + 1 ))*-1;
 
         ballPaint = new Paint();
         ballPaint.setColor(color);
@@ -27,10 +29,8 @@ public class Ball
         ballPaint.setStyle(Paint.Style.FILL);
     }
 
-    public void move(int w, int h,float pT,float pR,float pL)
+    public void move(int w, int h)
     {
-        Log.d("mylog", ">>> new ball");
-
         x = x + dx;
         y = y + dy;
         // check border left or right
@@ -38,9 +38,6 @@ public class Ball
             dx = -dx;
         // bottom or top
         if(y+radius>h || y-radius<0)
-            dy = -dy;
-        // collision with paddle
-        if(y+radius>pT && ((x-radius)>pL && (x-radius)<pR))
             dy = -dy;
     }
 
@@ -59,10 +56,21 @@ public class Ball
     {
         return y;
     }
-
-    public void setY(float y)
+    public float getDY()
     {
-        this.y = y;
+        return dy;
+    }
+    public void setDY(float dy)
+    {
+        this.dy = dy;
+    }
+    public float getDX()
+    {
+        return dx;
+    }
+    public void setDX(float dx)
+    {
+        this.dx = dx;
     }
 
     public void draw(Canvas canvas)
@@ -70,14 +78,6 @@ public class Ball
         canvas.drawCircle(x, y, radius, ballPaint);
     }
 
-    public boolean collideWith(Ball other)
-    {
-        double dist = Math.sqrt((this.x - other.x)*(this.x - other.x) + (this.y - other.y)*(this.y - other.y));
-
-        if(dist<(this.radius+other.radius))
-            return true;
-        return false;
-    }
 
     public boolean isInside(float tx, float ty)
     {

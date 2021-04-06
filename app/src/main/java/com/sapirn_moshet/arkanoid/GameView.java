@@ -27,8 +27,8 @@ public class GameView extends View {
     private int bgColor;
     private boolean isDraging;
     private int COLS,ROWS;
-    Thread thread_paddle,thread_ball;
-    boolean move_ball;
+    Thread thread_paddle,thread_ball,thread_bricks,thread_col_pad;
+    boolean move_ball,collideBrick,collidePaddle;
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
         Log.d("mylog", ">>> GameView");
@@ -62,8 +62,6 @@ public class GameView extends View {
         bricks = new BrickCollection(this.ROWS,this.COLS,h, w);
     }
     protected void onDraw(Canvas canvas) {
-        Log.d("mylog", ">>> onDraw");
-
         super.onDraw(canvas);
         canvas.drawColor(bgColor);
         if (gameState == GET_READY) {
@@ -77,18 +75,63 @@ public class GameView extends View {
             paddle.draw(canvas);
             ball.draw(canvas);
             bricks.draw(canvas);
+            checkCollitionBrick();
+            checkCollitionPaddle();
             moveBall();
-//            if (ball.collideWith(redBall))
-//            {
-//                Log.d("mylog", "GAME_OVER yellowBall.collideWith(redBall)");
-//                gameState = GAME_OVER_STATE;
-//            }
+
+
 
             invalidate();
         }
 
         if (gameState == GAME_OVER)
             canvas.drawText("GAME OVER", getWidth() / 2, getHeight() / 2, textPaint);
+    }
+
+    private void checkCollitionPaddle() {
+        collidePaddle = true;
+        if(thread_col_pad == null) {
+            Log.d("mylog", ">>> new thread_col_paddle");
+            thread_col_pad = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (collidePaddle) {
+                        if(paddle.collideWith(ball)){
+                            move_ball = false;
+                            ball.setDY(ball.getDY()*(-1));
+                            postInvalidate();
+                        }
+                        SystemClock.sleep(10);
+                    }
+                    thread_col_pad.interrupt();
+                    thread_col_pad=null;
+                }
+            });
+            thread_col_pad.start();
+        }
+    }
+
+    private void checkCollitionBrick(){
+        collideBrick = true;
+        if(thread_bricks == null) {
+            Log.d("mylog", ">>> new thread_bricks");
+            thread_bricks = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (collideBrick) {
+                        if(bricks.collideWith(ball)){
+                            move_ball = false;
+//                            ball.setDX(ball.getDX()*(-1));
+                            postInvalidate();
+                        }
+                        SystemClock.sleep(10);
+                    }
+                    thread_bricks.interrupt();
+                    thread_bricks=null;
+                }
+            });
+            thread_bricks.start();
+        }
     }
     private void moveBall(){
         move_ball = true;
@@ -98,7 +141,8 @@ public class GameView extends View {
                 @Override
                 public void run() {
                     while (move_ball) {
-                        ball.move(getWidth(),getHeight(),paddle.getTop(),paddle.getRight(),paddle.getLeft());
+                        ball.move(getWidth(),getHeight());
+                        postInvalidate();
                         SystemClock.sleep(10);
                     }
                     thread_ball.interrupt();
@@ -110,7 +154,7 @@ public class GameView extends View {
     }
     public boolean onTouchEvent(MotionEvent event)
     {
-        Log.d("mylog", ">>> onTouchEvent");
+//        Log.d("mylog", ">>> onTouchEvent");
 
         float tx = event.getX();
         float ty = event.getY();
@@ -129,14 +173,17 @@ public class GameView extends View {
                     if(!isDraging) {
                         isDraging = true;
                         if(thread_paddle == null) {
-                            Log.d("mylog", ">>> new thread_paddle");
+//                            Log.d("mylog", ">>> new thread_paddle");
                             thread_paddle = new Thread(new Runnable() {
                                 @Override
                                 public void run() {
                                     while (isDraging) {
                                         paddle.move(getWidth(),tx);
+                                        postInvalidate();
                                         SystemClock.sleep(1);
                                     }
+//                                    Log.d("mylog", ">>> killed thread_paddle");
+
                                     thread_paddle.interrupt();
                                     thread_paddle=null;
                                 }
@@ -148,9 +195,26 @@ public class GameView extends View {
                 break;
                 // TODO ask Ilan what to to do in movement
             case MotionEvent.ACTION_MOVE:
-                if(isDraging)
+                isDraging = false;
+                if(!isDraging)
                 {
-                    paddle.move(getWidth(),tx);
+                    isDraging = true;
+                    if(thread_paddle == null) {
+                        Log.d("mylog", ">>> new thread_paddle2");
+                        thread_paddle = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                while (isDraging) {
+                                    paddle.move(getWidth(), tx);
+                                    postInvalidate();
+                                    SystemClock.sleep(1);
+                                }
+                                thread_paddle.interrupt();
+                                thread_paddle = null;
+                            }
+                        });
+                        thread_paddle.start();
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:

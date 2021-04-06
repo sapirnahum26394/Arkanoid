@@ -2,6 +2,7 @@ package com.sapirn_moshet.arkanoid;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
 public class Brick {
     private float x, y, h, w, dx, dy;
@@ -22,12 +23,18 @@ public class Brick {
         canvas.drawRect(x,y,x+w,y+h,brickPaint);
     }
 
-    public boolean collideWith(Ball ball)
-    {
-//        double dist = Math.sqrt((this.x - ball.getX())*(this.x - ball.getX()) + (this.y - ball.getY())*(this.y - ball.getY()));
+    public boolean collideWith(Ball ball) {
+        float bx = ball.getX();
+        float by = ball.getY();
+        float br = ball.getRadius();
 
-//        if(dist<(this.radius+other.radius))
-//            return true;
+        if(((bx-br)<(this.x+this.w) && (bx+br)>(this.x))&&((by-br)<=(this.y+this.h) && (by+br)>=(this.y))){
+
+            ball.setDY(ball.getDY()*(-1));
+
+            return true;
+        }
+
         return false;
     }
 
@@ -63,4 +70,5 @@ public class Brick {
     {
         this.h = h;
     }
+
 }
