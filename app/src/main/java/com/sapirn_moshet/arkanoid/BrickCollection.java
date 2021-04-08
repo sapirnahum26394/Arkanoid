@@ -26,7 +26,7 @@ public class BrickCollection {
             }
         }
     }
-    private void createBricks(){
+    public void createBricks(){
         float x=0,y=250;
         for (int i=0;i<this.ROWS;i++) {
             for (int j = 0; j < this.COLS; j++) {

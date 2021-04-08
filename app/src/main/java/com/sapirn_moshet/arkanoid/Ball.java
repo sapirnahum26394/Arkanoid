@@ -46,12 +46,14 @@ public class Ball
         return x;
     }
     public float getRadius() { return radius; }
-
     public void setX(float x)
     {
         this.x = x;
     }
-
+    public void setY(float y)
+    {
+        this.y = y;
+    }
     public float getY()
     {
         return y;
@@ -78,18 +80,12 @@ public class Ball
         canvas.drawCircle(x, y, radius, ballPaint);
     }
 
-
-    public boolean isInside(float tx, float ty)
-    {
-        double dist = Math.sqrt((this.x - tx)*(this.x - tx) + (this.y - ty)*(this.y - ty));
-
-        if(dist<(this.radius))
+    public boolean collideWith(int height, int width) {
+        if((height-this.y)<=this.getRadius()){
             return true;
+        }
         return false;
     }
 
-    public void changeRndColor()
-    {
-        ballPaint.setColor(new Random().nextInt());
-    }
+
 }

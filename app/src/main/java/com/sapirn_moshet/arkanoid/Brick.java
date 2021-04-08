@@ -29,11 +29,17 @@ public class Brick {
         float br = ball.getRadius();
 
         if(((bx-br)<(this.x+this.w) && (bx+br)>(this.x))&&((by-br)<=(this.y+this.h) && (by+br)>=(this.y))){
-
             ball.setDY(ball.getDY()*(-1));
-
             return true;
         }
+        else if(((by+br)<=(this.y) && (by-br)>=(this.y+this.h)) && ((bx-br)<=(this.x+this.w) && (bx+br)>=this.x)){
+            Log.d("mylog", "***************************");
+            // TODO : check boundaries
+            ball.setDX(ball.getDX()*(-1));
+            ball.setDY(ball.getDY()*(-1));
+            return true;
+        }
+
 
         return false;
     }

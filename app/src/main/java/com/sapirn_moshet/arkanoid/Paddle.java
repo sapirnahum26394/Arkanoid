@@ -16,14 +16,13 @@ public class Paddle {
         this.y = y;
         this.hight = h;
         this.width = w;
-        this.dx = 1;
+        this.dx = 5;
         paddlePaint = new Paint();
         paddlePaint.setColor(color);
         paddlePaint.setTextAlign(Paint.Align.CENTER);
         paddlePaint.setStyle(Paint.Style.FILL);
     }
-    public void draw(Canvas canvas)
-    {
+    public void draw(Canvas canvas){
         canvas.drawRect(x-width/2,y-hight,x+width/2,y,paddlePaint);
     }
 
@@ -31,16 +30,17 @@ public class Paddle {
         float bx = ball.getX();
         float by = ball.getY();
         float br = ball.getRadius();
-
-        if(((bx+br)<(this.x+this.width/2) && (bx-br)>(this.x-this.width/2)) && (by+br)>=(this.y-this.hight)){
+        // TODO : check boundaries
+        if(((bx-br+ball.getDX())>=(this.x-this.width/2) && (bx+br+ball.getDX())<=(this.x+this.width/2)) && ((by+br+ball.getDY())>=(this.y-this.hight) && (by-br+ball.getDY())<=(this.y))){
+            return true;
+        }
+        else if(((by+br+ball.getDY())<=(this.y) && (by-br+ball.getDY())>=(this.y-this.hight)) && ((bx-br+ball.getDX())<=(this.x-this.width/2) && (bx+br+ball.getDX())>=(this.x+this.width/2))){
             return true;
         }
 
         return false;
     }
-    public void move(int w,float tx)
-    {
-
+    public void move(int w,float tx) {
         if( tx>0 && tx<w/2 ) {// left
             if (x - this.width / 2 > dx && x + this.width / 2 < w+dx)
                 this.setX(x - dx);
@@ -50,7 +50,6 @@ public class Paddle {
                     this.setX(x + dx);
                 }
             }
-
     }
     public float getX()    {
         return x;
