@@ -1,9 +1,12 @@
 package com.sapirn_moshet.arkanoid;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -20,12 +23,14 @@ public class GameView extends View {
     private Paddle paddle;
     private Ball ball;
     private BrickCollection bricks;
-    private Paint textPaint;
+    private Paint textPaint,scorePaint,LivesPaint,circlePaint_G_Fill,circlePaint_Stroke,circlePaint_W_Fill,circlePaint_B_Fill;
     private int bgColor;
     private boolean isDraging;
     private final int COLS,ROWS;
     private int lives=3;
     private int score=0;
+    private int countBricks;
+    private Bitmap life[] = new Bitmap[3];
     Thread thread_paddle,thread_ball,thread_bricks,thread_col_pad,thread_col_floor;
     boolean move_ball,collideBrick,collidePaddle,collideFloor;
     public GameView(Context context, AttributeSet attrs) {
@@ -38,14 +43,46 @@ public class GameView extends View {
         Log.d("mylog", ">>> row: "+ ROWS);
         Log.d("mylog", ">>> col: "+ COLS);
 
+        countBricks = ROWS * COLS;
         textPaint = new Paint();
         textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(60);
         textPaint.setTextAlign(Paint.Align.CENTER);
 
+
+        scorePaint = new Paint();
+        scorePaint.setColor(Color.GREEN);
+        scorePaint.setTextSize(60);
+
+        circlePaint_G_Fill = new Paint();
+        circlePaint_G_Fill.setStyle(Paint.Style.FILL);
+        circlePaint_G_Fill.setColor(Color.GREEN);
+        circlePaint_G_Fill.setStrokeWidth(6);
+
+        //CHECK
+        circlePaint_W_Fill = new Paint();
+        circlePaint_W_Fill.setStyle(Paint.Style.FILL);
+        circlePaint_W_Fill.setColor(Color.WHITE);
+        circlePaint_W_Fill.setStrokeWidth(6);
+
+        circlePaint_B_Fill = new Paint();
+        circlePaint_B_Fill.setStyle(Paint.Style.FILL);
+        circlePaint_B_Fill.setColor(Color.BLACK);
+        circlePaint_B_Fill.setStrokeWidth(6);
+
+
+        LivesPaint = new Paint();
+        LivesPaint.setColor(Color.GREEN);
+        LivesPaint.setTextSize(60);
+
         isDraging = false;
         gameState = GET_READY;
         bgColor = Color.BLACK;
+
+        life[0] =  BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart);
+        life[1] = BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart_border);
+        life[2] = BitmapFactory.decodeResource(getResources(), R.drawable.green_ball);
+
     }
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh){
@@ -61,9 +98,31 @@ public class GameView extends View {
     }
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         canvas.drawColor(bgColor);
+        canvas.drawText("Score: "+score,50,120,scorePaint);
+//        canvas.drawBitmap(life[0],1750,120,null);
+//        canvas.drawBitmap(life[1],400,120,null);
+//        Drawable icon = getResources().getDrawable(R.drawable.ic_heart);
+        canvas.drawText("Lives: ",1600,120,scorePaint);
+
+
+        int x=1810;
+        int y=100;
+
+        for(int i = 0; i < 3-lives; i++){
+            canvas.drawCircle(x, y, 35, circlePaint_G_Fill);
+            canvas.drawCircle(x, y, 25, circlePaint_B_Fill);
+            x += 75;
+        }
+        for(int i = 0; i < lives; i++){
+            canvas.drawCircle(x, y, 35, circlePaint_G_Fill);
+            canvas.drawCircle(x, y, 25, circlePaint_W_Fill);
+            x += 75;
+        }
+
         if (gameState == GET_READY) {
-            canvas.drawText("!PLAY to Click", getWidth() / 2, getHeight() / 2, textPaint);
+            canvas.drawText("PLAY to Click!", getWidth() / 2, getHeight() / 2, textPaint);
             paddle.draw(canvas);
             ball.draw(canvas);
             bricks.draw(canvas);
@@ -82,7 +141,11 @@ public class GameView extends View {
 
         if (gameState == GAME_OVER) {
             // TODO: check if need to call the constructor or need to reset variables
-            canvas.drawText("GAME OVER", getWidth() / 2, getHeight() / 2, textPaint);
+            if(countBricks > 0)
+                canvas.drawText("GAME OVER -You Loss!", getWidth() / 2, getHeight() / 2, textPaint);
+            else{
+                canvas.drawText("GAME OVER -You WIN!", getWidth() / 2, getHeight() / 2, textPaint);
+            }
         }
     }
     private void checkCollitionFloor() {
@@ -150,6 +213,12 @@ public class GameView extends View {
                     while (collideBrick) {
                         if(bricks.collideWith(ball)){
                             setScore();
+                            countBricks--;
+                            Log.d("mylog", "countBricks: "+countBricks);
+                            if (countBricks==0) {
+                                gameState = GAME_OVER;
+//                                collideFloor=false;
+                            }
                             Log.d("sapir", "score: "+score);
                             move_ball = false;
                             postInvalidate();
@@ -212,8 +281,10 @@ public class GameView extends View {
                     gameState = PLAYING;
                     this.score=0;
                     this.lives=3;
+
                     initGame();
                     bricks.createBricks();
+                    this.countBricks=ROWS*COLS;
                     invalidate();
                 }
                 else
@@ -221,7 +292,7 @@ public class GameView extends View {
                     movePaddle(tx);
                 }
                 break;
-                // TODO ask Ilan what to to do in movement
+            // TODO ask Ilan what to to do in movement
             case MotionEvent.ACTION_MOVE:
                 isDraging = false;
                 movePaddle(tx);
