@@ -1,5 +1,7 @@
 package com.sapirn_moshet.arkanoid;
 
+
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,6 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -14,6 +18,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.Random;
+
+
 
 public class GameView extends View {
     private static int GET_READY = 1;
@@ -23,14 +29,16 @@ public class GameView extends View {
     private Paddle paddle;
     private Ball ball;
     private BrickCollection bricks;
-    private Paint textPaint,scorePaint,LivesPaint,circlePaint_G_Fill,circlePaint_Stroke,circlePaint_W_Fill,circlePaint_B_Fill;
+    private Paint textPaint,scorePaint,LivesPaint,circlePaint_G_Fill,circlePaint_W_Fill,circlePaint_B_Fill;
     private int bgColor;
     private boolean isDraging;
     private final int COLS,ROWS;
-    private int lives=3;
-    private int score=0;
+    private int lives = 3;
+    private int score = 0;
     private int countBricks;
-    private Bitmap life[] = new Bitmap[3];
+
+
+//    private Bitmap life[] = new Bitmap[3];
     Thread thread_paddle,thread_ball,thread_bricks,thread_col_pad,thread_col_floor;
     boolean move_ball,collideBrick,collidePaddle,collideFloor;
     public GameView(Context context, AttributeSet attrs) {
@@ -57,7 +65,7 @@ public class GameView extends View {
         circlePaint_G_Fill = new Paint();
         circlePaint_G_Fill.setStyle(Paint.Style.FILL);
         circlePaint_G_Fill.setColor(Color.GREEN);
-        circlePaint_G_Fill.setStrokeWidth(6);
+        circlePaint_G_Fill.setStrokeWidth(3);
 
         //CHECK
         circlePaint_W_Fill = new Paint();
@@ -79,9 +87,10 @@ public class GameView extends View {
         gameState = GET_READY;
         bgColor = Color.BLACK;
 
-        life[0] =  BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart);
-        life[1] = BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart_border);
-        life[2] = BitmapFactory.decodeResource(getResources(), R.drawable.green_ball);
+
+//        life[0] =  BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart);
+//        life[1] = BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart_border);
+//        life[2] = BitmapFactory.decodeResource(getResources(), R.drawable.green_ball);
 
     }
     @Override
@@ -105,24 +114,12 @@ public class GameView extends View {
 //        canvas.drawBitmap(life[1],400,120,null);
 //        Drawable icon = getResources().getDrawable(R.drawable.ic_heart);
         canvas.drawText("Lives: ",1600,120,scorePaint);
-
-
-        int x=1810;
-        int y=100;
-
-        for(int i = 0; i < 3-lives; i++){
-            canvas.drawCircle(x, y, 35, circlePaint_G_Fill);
-            canvas.drawCircle(x, y, 25, circlePaint_B_Fill);
-            x += 75;
-        }
-        for(int i = 0; i < lives; i++){
-            canvas.drawCircle(x, y, 35, circlePaint_G_Fill);
-            canvas.drawCircle(x, y, 25, circlePaint_W_Fill);
-            x += 75;
-        }
+        drawLive(canvas);
 
         if (gameState == GET_READY) {
-            canvas.drawText("PLAY to Click!", getWidth() / 2, getHeight() / 2, textPaint);
+
+//            canvas.drawText("PLAY to Click!", getWidth() / 2, getHeight() / 2, textPaint);
+            canvas.drawText("Click to PLAY!", getWidth() / 2, bricks.getHeight()+110 , textPaint);
             paddle.draw(canvas);
             ball.draw(canvas);
             bricks.draw(canvas);
@@ -141,13 +138,21 @@ public class GameView extends View {
 
         if (gameState == GAME_OVER) {
             // TODO: check if need to call the constructor or need to reset variables
-            if(countBricks > 0)
-                canvas.drawText("GAME OVER -You Loss!", getWidth() / 2, getHeight() / 2, textPaint);
-            else{
-                canvas.drawText("GAME OVER -You WIN!", getWidth() / 2, getHeight() / 2, textPaint);
+            if(countBricks > 0) {
+                canvas.drawText("GAME OVER -You Loss!", getWidth() / 2, bricks.getHeight()+110, textPaint);
+
+                paddle.draw(canvas);
+//                ball.draw(canvas);
+                bricks.draw(canvas);
             }
+             else{
+                canvas.drawText("GAME OVER -You WIN!", getWidth() / 2, bricks.getHeight()+110, textPaint);
+            }
+//            gameState = GET_READY;
         }
     }
+
+
     private void checkCollitionFloor() {
         collideFloor = true;
         if(thread_col_floor == null) {
@@ -159,12 +164,24 @@ public class GameView extends View {
                         if(ball.collideWith(getHeight(),getWidth())){
                             move_ball = false;
                             lives--;
+                            /*
+                            if (lives > 0){
+                                initGame();
+                                gameState = GET_READY;
+                            }
+                            else{
+                                gameState = GAME_OVER;
+                                collideFloor=false;
+                            }
+                            */
+
                             initGame();
                             Log.d("sapir", "lives: "+lives);
                             if (lives==0) {
                                 gameState = GAME_OVER;
                                 collideFloor=false;
                             }
+
                             postInvalidate();
                         }
                         SystemClock.sleep(10);
@@ -180,6 +197,7 @@ public class GameView extends View {
         paddle.setX((float)getWidth()/2);
         ball.setX((float)getWidth()/2);
         ball.setY(getHeight()-150-getHeight()/20);
+//        gameState = GET_READY;
     }
     private void checkCollitionPaddle() {
         collidePaddle = true;
@@ -215,7 +233,7 @@ public class GameView extends View {
                             setScore();
                             countBricks--;
                             Log.d("mylog", "countBricks: "+countBricks);
-                            if (countBricks==0) {
+                            if (countBricks == 0) {
                                 gameState = GAME_OVER;
 //                                collideFloor=false;
                             }
@@ -244,6 +262,7 @@ public class GameView extends View {
                         postInvalidate();
                         SystemClock.sleep(10);
                     }
+                    Log.d("mylog", ">>> finish thread_ball");
                     thread_ball.interrupt();
                     thread_ball=null;
                 }
@@ -279,12 +298,12 @@ public class GameView extends View {
                 if(gameState == GET_READY || gameState == GAME_OVER)
                 {
                     gameState = PLAYING;
-                    this.score=0;
-                    this.lives=3;
+                    this.score = 0;
+                    this.lives = 3;
 
                     initGame();
                     bricks.createBricks();
-                    this.countBricks=ROWS*COLS;
+                    this.countBricks = ROWS * COLS;
                     invalidate();
                 }
                 else
@@ -307,12 +326,27 @@ public class GameView extends View {
         return true;
     }
     public void setScore(){
-        this.score+=5*lives;
+        this.score += 5*lives;
     }
-    public void drawLive(){
+    public void drawLive(Canvas canvas){
+        int x = 1810;
+
+        for(int i = 0; i < 3-lives; i++){
+            canvas.drawCircle(x, 100, 35, circlePaint_G_Fill);
+            canvas.drawCircle(x, 100, 25, circlePaint_B_Fill);
+            x += 75;
+        }
+        for(int i = 0; i < lives; i++){
+            canvas.drawCircle(x, 100, 35, circlePaint_G_Fill);
+            canvas.drawCircle(x, 100, 25, circlePaint_W_Fill);
+            x += 75;
+        }
 
     }
     public void drawScore(){
 
     }
+
+
+
 }

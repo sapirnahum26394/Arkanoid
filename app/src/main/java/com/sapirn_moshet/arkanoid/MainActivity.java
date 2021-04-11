@@ -40,47 +40,8 @@ public class MainActivity extends AppCompatActivity {
 //        notify1();
         setContentView(R.layout.activity_main);
 
-
-
     }
-    /*
-    private void notificationsSetup() {
-        // 1. Get reference Notification Manager system Service
-        notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
-        // 2. Create Notification-Channel. ONLY for Android 8.0 (OREO API level 26) and higher.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
-            NotificationChannel notificationChannel = new NotificationChannel(
-                    CHANNEL_ID, 	// Constant for Channel ID
-                    CHANNEL_NAME, 	// Constant for Channel NAME
-                    NotificationManager.IMPORTANCE_HIGH);  // for popup use: IMPORTANCE_HIGH
-
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-
-        notificationID = 1;
-    }
-    */
-
-   /*
-    public void notify1()
-    {
-
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,0);
-
-        // 3. Create & show the Notification. on Build.VERSION < OREO notification avoid CHANEL_ID
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notify_bell)
-                .setContentTitle( "notification battery charged! ("+ notificationID +")")
-                .setContentText("Your battery is less than 10% please charge your phone. !")
-                .setContentIntent(pendingIntent)
-                .build();
-
-        notificationManager.notify(notificationID, notification);
-    }
-    */
     private void broadcastSetup()
     {
         // 1. Create a new Class that extends Broadcast Receiver

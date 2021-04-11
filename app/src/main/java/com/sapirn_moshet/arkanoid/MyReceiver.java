@@ -20,10 +20,8 @@ public class MyReceiver extends BroadcastReceiver
 {
     private static final String CHANNEL_ID = "channel_main";
     private static final CharSequence CHANNEL_NAME = "Main Channel";
-
     private NotificationManager notificationManager;
-    private int notificationID;
-    private boolean show_notification= false;
+
 
     @Override
 
@@ -35,7 +33,7 @@ public class MyReceiver extends BroadcastReceiver
 //        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         int batteryLevel = intent.getIntExtra("level", 0);
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        if (batteryLevel < 10 && status == 4 &&!show_notification){
+        if (batteryLevel < 10 && status == 4 ){
             Log.d("mylog", ">>>>> UNDER 10 LEVEL and battery is not charged");
             showNotification(context);
         }
@@ -49,13 +47,13 @@ public class MyReceiver extends BroadcastReceiver
 
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notify_bell)
-                .setContentTitle( "notification battery charged! ("+ notificationID +")")
+//                .setContentTitle( "notification battery charged! ("+ notificationID +")")
+                .setContentTitle( "notification battery charged!")
                 .setContentText("Your battery is less than 10% please charge your phone. !")
                 .setContentIntent(contentIntent)
                 .build();
 
-        notificationManager.notify(notificationID, notification);
-        show_notification=true;
+        notificationManager.notify(1, notification);
 
     }
     private void notificationsSetup(Context context) {
@@ -72,9 +70,6 @@ public class MyReceiver extends BroadcastReceiver
 
             notificationManager.createNotificationChannel(notificationChannel);
         }
-
-        notificationID = 1;
-
 
     }
 }
