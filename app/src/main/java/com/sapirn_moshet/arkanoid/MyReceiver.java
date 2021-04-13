@@ -33,7 +33,7 @@ public class MyReceiver extends BroadcastReceiver
 //        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         int batteryLevel = intent.getIntExtra("level", 0);
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        if (batteryLevel < 10 && status == 4 ){
+        if (batteryLevel <= 10 && status == 4 ){
             Log.d("mylog", ">>>>> UNDER 10 LEVEL and battery is not charged");
             showNotification(context);
         }

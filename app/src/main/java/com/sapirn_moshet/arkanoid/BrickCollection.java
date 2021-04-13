@@ -56,7 +56,6 @@ public class BrickCollection {
     }
     public float getHeight()
     {
-        Log.d("mylog1", ">>> height is:"+this.bricks_height);
         return this.bricks_height;
     }
     public float getWidth()

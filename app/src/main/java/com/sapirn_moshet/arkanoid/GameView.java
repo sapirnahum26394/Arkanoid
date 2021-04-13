@@ -1,22 +1,14 @@
 package com.sapirn_moshet.arkanoid;
 
-
-
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
 import java.util.Random;
 
 
@@ -36,20 +28,17 @@ public class GameView extends View {
     private int lives = 3;
     private int score = 0;
     private int countBricks;
-
-
+    private float saveBX,saveBY,savePX,savePY;
+    private BrickCollection saveBricks;
 //    private Bitmap life[] = new Bitmap[3];
     Thread thread_paddle,thread_ball,thread_bricks,thread_col_pad,thread_col_floor;
     boolean move_ball,collideBrick,collidePaddle,collideFloor;
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.d("mylog", ">>> GameView");
 
         Random r = new Random();
         ROWS =  r.nextInt(6-2) + 2;
         COLS =  r.nextInt(7-3) + 3;
-        Log.d("mylog", ">>> row: "+ ROWS);
-        Log.d("mylog", ">>> col: "+ COLS);
 
         countBricks = ROWS * COLS;
         textPaint = new Paint();
@@ -88,15 +77,11 @@ public class GameView extends View {
         bgColor = Color.BLACK;
 
 
-//        life[0] =  BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart);
-//        life[1] = BitmapFactory.decodeResource(getResources(), R.drawable.ic_heart_border);
-//        life[2] = BitmapFactory.decodeResource(getResources(), R.drawable.green_ball);
-
     }
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh){
-        Log.d("mylog", ">>> onSizeChanged");
-        Log.d("mylog", ">>> h: "+ h);
+//        Log.d("mylog", ">>> onSizeChanged");
+//        Log.d("mylog", ">>> h: "+ h);
 
         super.onSizeChanged(w, h, oldw, oldh);
 
@@ -110,15 +95,10 @@ public class GameView extends View {
 
         canvas.drawColor(bgColor);
         canvas.drawText("Score: "+score,50,120,scorePaint);
-//        canvas.drawBitmap(life[0],1750,120,null);
-//        canvas.drawBitmap(life[1],400,120,null);
-//        Drawable icon = getResources().getDrawable(R.drawable.ic_heart);
-        canvas.drawText("Lives: ",1600,120,scorePaint);
+        canvas.drawText("Lives: ",getWidth()-450,120,scorePaint);
         drawLive(canvas);
 
         if (gameState == GET_READY) {
-
-//            canvas.drawText("PLAY to Click!", getWidth() / 2, getHeight() / 2, textPaint);
             canvas.drawText("Click to PLAY!", getWidth() / 2, bricks.getHeight()+110 , textPaint);
             paddle.draw(canvas);
             ball.draw(canvas);
@@ -129,54 +109,41 @@ public class GameView extends View {
             paddle.draw(canvas);
             ball.draw(canvas);
             bricks.draw(canvas);
-            checkCollitionBrick();
-            checkCollitionPaddle();
-            checkCollitionFloor();
+            checkCollisionBrick();
+            checkCollisionPaddle();
+            checkCollisionFloor();
             moveBall();
             invalidate();
         }
 
         if (gameState == GAME_OVER) {
             // TODO: check if need to call the constructor or need to reset variables
-            if(countBricks > 0) {
+            if(this.countBricks > 0) {
                 canvas.drawText("GAME OVER -You Loss!", getWidth() / 2, bricks.getHeight()+110, textPaint);
-
                 paddle.draw(canvas);
-//                ball.draw(canvas);
                 bricks.draw(canvas);
             }
-             else{
-                canvas.drawText("GAME OVER -You WIN!", getWidth() / 2, bricks.getHeight()+110, textPaint);
+            else{
+                canvas.drawText("GAME OVER - You WIN!", getWidth() / 2, getHeight() / 2, textPaint);
             }
-//            gameState = GET_READY;
         }
     }
 
 
-    private void checkCollitionFloor() {
+    private void checkCollisionFloor() {
         collideFloor = true;
         if(thread_col_floor == null) {
-            Log.d("mylog", ">>> new thread_col_floor");
+//            Log.d("mylog", ">>> new thread_col_floor");
             thread_col_floor = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     while (collideFloor) {
                         if(ball.collideWith(getHeight(),getWidth())){
                             move_ball = false;
-                            lives--;
-                            /*
-                            if (lives > 0){
-                                initGame();
-                                gameState = GET_READY;
-                            }
-                            else{
-                                gameState = GAME_OVER;
-                                collideFloor=false;
-                            }
-                            */
+//                            lives--;
+//                            initGame();
+//                            gameState = GET_READY;
 
-                            initGame();
-                            Log.d("sapir", "lives: "+lives);
                             if (lives==0) {
                                 gameState = GAME_OVER;
                                 collideFloor=false;
@@ -197,12 +164,11 @@ public class GameView extends View {
         paddle.setX((float)getWidth()/2);
         ball.setX((float)getWidth()/2);
         ball.setY(getHeight()-150-getHeight()/20);
-//        gameState = GET_READY;
     }
-    private void checkCollitionPaddle() {
+    private void checkCollisionPaddle() {
         collidePaddle = true;
         if(thread_col_pad == null) {
-            Log.d("mylog", ">>> new thread_col_paddle");
+//            Log.d("mylog", ">>> new thread_col_paddle");
             thread_col_pad = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -221,10 +187,10 @@ public class GameView extends View {
             thread_col_pad.start();
         }
     }
-    private void checkCollitionBrick(){
+    private void checkCollisionBrick(){
         collideBrick = true;
         if(thread_bricks == null) {
-            Log.d("mylog", ">>> new thread_bricks");
+//            Log.d("mylog", ">>> new thread_bricks");
             thread_bricks = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -232,12 +198,9 @@ public class GameView extends View {
                         if(bricks.collideWith(ball)){
                             setScore();
                             countBricks--;
-                            Log.d("mylog", "countBricks: "+countBricks);
                             if (countBricks == 0) {
                                 gameState = GAME_OVER;
-//                                collideFloor=false;
                             }
-                            Log.d("sapir", "score: "+score);
                             move_ball = false;
                             postInvalidate();
                         }
@@ -253,7 +216,7 @@ public class GameView extends View {
     private void moveBall(){
         move_ball = true;
         if(thread_ball == null) {
-            Log.d("mylog", ">>> new thread_ball");
+//            Log.d("mylog", ">>> new thread_ball");
             thread_ball = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -262,7 +225,7 @@ public class GameView extends View {
                         postInvalidate();
                         SystemClock.sleep(10);
                     }
-                    Log.d("mylog", ">>> finish thread_ball");
+//                    Log.d("mylog", ">>> finish thread_ball");
                     thread_ball.interrupt();
                     thread_ball=null;
                 }
@@ -277,6 +240,7 @@ public class GameView extends View {
                 thread_paddle = new Thread(new Runnable() {
                     @Override
                     public void run() {
+//                        Log.d("thread", "paddle: " + tx);
                         while (isDraging) {
                             paddle.move(getWidth(),tx);
                             postInvalidate();
@@ -295,25 +259,31 @@ public class GameView extends View {
         switch (event.getAction())
         {
             case MotionEvent.ACTION_DOWN:
-                if(gameState == GET_READY || gameState == GAME_OVER)
+                if(gameState == GET_READY )
                 {
                     gameState = PLAYING;
+                    initGame();
+                    invalidate();
+                }
+                else if(gameState == GAME_OVER){
+                    gameState = PLAYING;
+                    this.countBricks = ROWS * COLS;
                     this.score = 0;
                     this.lives = 3;
-
                     initGame();
                     bricks.createBricks();
-                    this.countBricks = ROWS * COLS;
                     invalidate();
                 }
                 else
                 {
+                    Log.d("mylog", ">>> pressing"+tx);
                     movePaddle(tx);
                 }
                 break;
             // TODO ask Ilan what to to do in movement
             case MotionEvent.ACTION_MOVE:
                 isDraging = false;
+                Log.d("mylog", ">>> moving"+tx);
                 movePaddle(tx);
                 break;
             case MotionEvent.ACTION_UP:
@@ -329,7 +299,7 @@ public class GameView extends View {
         this.score += 5*lives;
     }
     public void drawLive(Canvas canvas){
-        int x = 1810;
+        int x = getWidth()-220;
 
         for(int i = 0; i < 3-lives; i++){
             canvas.drawCircle(x, 100, 35, circlePaint_G_Fill);
@@ -343,10 +313,30 @@ public class GameView extends View {
         }
 
     }
-    public void drawScore(){
 
+    @Override
+    protected void onVisibilityChanged( View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == View.VISIBLE) {
+            Log.d("mylog", ">>> onResume()");
+            if(saveBricks != null) {
+                ball.setX(saveBX);
+                ball.setY(saveBY);
+                paddle.setX(savePX);
+                paddle.setY(savePY);
+                bricks = saveBricks;
+            }
+        }//onResume called
+        else{
+            Log.d("mylog", ">>> onPause()");
+            isDraging = false;
+            move_ball = false;
+            saveBX=ball.getX();
+            saveBY=ball.getY();
+            savePX=paddle.getX();
+            savePY=paddle.getY();
+            saveBricks = bricks;
+            // onPause() called
+        }
     }
-
-
-
 }

@@ -14,15 +14,11 @@ public class Ball
 
     public Ball(float x, float y, float radius, int color)
     {
-        Random r = new Random();
+
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.dx = 5;
-//                r.nextInt(10-(-10) - 10 );
-        this.dy = -7;
-//                (r.nextInt(10-(1) + 1 ))*-1;
-
+        setSpeed();
         ballPaint = new Paint();
         ballPaint.setColor(color);
         ballPaint.setStrokeWidth(10);
@@ -87,5 +83,11 @@ public class Ball
         return false;
     }
 
-
+    private void setSpeed(){
+        Random r = new Random();
+        this.dx = r.nextInt(8 + 8) - 8;
+        if (this.dx<4 && this.dx>4)
+            setSpeed();
+        this.dy = (r.nextInt(8 - 4) + 4 ) * -1;
+    }
 }
