@@ -2,43 +2,40 @@ package com.sapirn_moshet.arkanoid;
 
         import android.graphics.Canvas;
         import android.graphics.Paint;
+        import android.util.Log;
 
 public class Paddle {
-    private float x, y, hight, width, dx;
+    private float x, y, height, width, dx;
     private Paint paddlePaint;
     public Paddle(float x, float y, float h, float w, int color)    {
         this.x = x;
         this.y = y;
-        this.hight = h;
+        this.height = h;
         this.width = w;
-        this.dx = 1;
+        this.dx = 6;
         paddlePaint = new Paint();
         paddlePaint.setColor(color);
         paddlePaint.setTextAlign(Paint.Align.CENTER);
         paddlePaint.setStyle(Paint.Style.FILL);
     }
     public void draw(Canvas canvas){
-        canvas.drawRect(x-width/2,y-hight,x+width/2,y,paddlePaint);
+        canvas.drawRect(x-width/2,y-height,x+width/2,y,paddlePaint);
     }
     public boolean collideWith(Ball ball) {
         float bx = ball.getX();
         float by = ball.getY();
         float br = ball.getRadius();
-        // TODO : check boundaries
 
-        double leftCorner =Math.sqrt((bx - (this.x-this.width/2))*(bx - (this.x-this.width/2)) + (by - (this.y-this.hight))*(by - (this.y-this.hight)));
-        double rightCorner =Math.sqrt((bx - (this.x+this.width/2))*(bx - (this.x+this.width/2)) + (by - (this.y-this.hight))*(by - (this.y-this.hight)));
+        double Distance_x = Math.abs(bx - this.x) + Math.abs(ball.getDX());
+        double Distance_y = Math.abs(by - this.y+this.height/2) + Math.abs(ball.getDY());
+        double corners = (Distance_x - this.width/2)*(Distance_x - this.width/2) +(Distance_y - this.height/2)*(Distance_y - this.height/2);
 
-        if(((bx-br+ball.getDX())>=(this.x-this.width/2) && (bx+br+ball.getDX())<=(this.x+this.width/2)) && ((by+br+ball.getDY())>=(this.y-this.hight) && (by-br+ball.getDY())<=(this.y))){
-            return true;
-        }
-        else if(((by+br+ball.getDY())<=(this.y) && (by-br+ball.getDY())>=(this.y-this.hight)) && ((bx-br+ball.getDX())<=(this.x-this.width/2) && (bx+br+ball.getDX())>=(this.x+this.width/2))){
-            return true;
-        }
-        else if(leftCorner<=(br))
-            return true;
-        else if(rightCorner<=(br))
-            return true;
+        if (Distance_x > (this.width/2 + br )) { return false; }
+        if (Distance_y > (this.height/2 + br )) { return false; }
+
+        if (Distance_y <= (this.height/2 + br)) { return true; }
+        if (Distance_x <= (this.width/2 + br)){ return true; }
+        if (corners <= (br*br)) { return true; }
 
         return false;
     }
@@ -53,39 +50,8 @@ public class Paddle {
                 }
             }
     }
-    public float getX()    {
-        return x;
-    }
     public void setX(float x)
     {
         this.x = x;
-    }
-    public float getW()    {
-        return width;
-    }
-    public void setW(float w)    {
-        this.width = w;
-    }
-    public float getH()    {
-        return hight;
-    }
-    public void setH(float y)    {
-        this.hight = hight;
-    }
-    public float getLeft()    {
-        return x-width/2;
-    }
-    public float getRight()    {
-        return x+width/2;
-    }
-    public float getTop()    {
-        return y-hight;
-    }
-
-    public float getY() {
-        return y;
-    }
-    public void setY(float y) {
-        this.y = y;
     }
 }

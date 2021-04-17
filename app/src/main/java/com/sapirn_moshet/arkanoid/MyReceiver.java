@@ -28,9 +28,6 @@ public class MyReceiver extends BroadcastReceiver
     public void onReceive(Context context, Intent intent)
     {
         notificationsSetup(context);
-//        String action = intent.getAction();
-//        Log.d("mylog", ">>>>> Action: " + action);
-//        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         int batteryLevel = intent.getIntExtra("level", 0);
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         if (batteryLevel <= 10 && status == 4 ){

@@ -21,6 +21,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver batteryReceiver;
     private IntentFilter filter;
+    private GameView game;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         broadcastSetup();
         setContentView(R.layout.activity_main);
+        game = (GameView) findViewById(R.id.game_view_ID);
 
     }
 
@@ -53,5 +55,18 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         unregisterReceiver(batteryReceiver);
     }
+    protected void onResume()
+    {
+        super.onResume();
+        this.game.resumeView();
+        Log.d("mylog", ">>> onResume()");
+    }
 
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        this.game.saveView();
+        Log.d("mylog", ">>> onPause()");
+    }
 }

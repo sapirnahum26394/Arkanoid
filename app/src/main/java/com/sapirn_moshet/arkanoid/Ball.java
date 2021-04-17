@@ -12,8 +12,7 @@ public class Ball
     private float x, y, radius, dx, dy;
     private Paint ballPaint;
 
-    public Ball(float x, float y, float radius, int color)
-    {
+    public Ball(float x, float y, float radius, int color) {
 
         this.x = x;
         this.y = y;
@@ -24,9 +23,7 @@ public class Ball
         ballPaint.setStrokeWidth(10);
         ballPaint.setStyle(Paint.Style.FILL);
     }
-
-    public void move(int w, int h)
-    {
+    public void move(int w, int h) {
         x = x + dx;
         y = y + dy;
         // check border left or right
@@ -36,7 +33,6 @@ public class Ball
         if(y+radius>h || y-radius<0)
             dy = -dy;
     }
-
     public float getX()
     {
         return x;
@@ -58,8 +54,7 @@ public class Ball
     {
         return dy;
     }
-    public void setDY(float dy)
-    {
+    public void setDY(float dy){
         this.dy = dy;
     }
     public float getDX()
@@ -70,24 +65,23 @@ public class Ball
     {
         this.dx = dx;
     }
-
     public void draw(Canvas canvas)
     {
         canvas.drawCircle(x, y, radius, ballPaint);
     }
-
     public boolean collideWith(int height, int width) {
         if((height-this.y)<=this.getRadius()){
             return true;
         }
         return false;
     }
-
-    private void setSpeed(){
-        Random r = new Random();
-        this.dx = r.nextInt(8 + 8) - 8;
-        if (this.dx<4 && this.dx>4)
+    public void setSpeed(){
+        double angle = (Math.random()*(150-30)+30);
+        float speed = (float) ((Math.random()+1) * 5);
+        if(angle > 85 && angle < 95)
             setSpeed();
-        this.dy = (r.nextInt(8 - 4) + 4 ) * -1;
+        this.dx = ((float) Math.cos(Math.toRadians(angle))*speed);
+        this.dy = ((float) -Math.sin(Math.toRadians(angle))*speed);
+        Log.d("mylog", "angle: "+angle+" speed: "+speed);
     }
 }

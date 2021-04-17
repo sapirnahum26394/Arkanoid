@@ -11,41 +11,33 @@ import android.view.MotionEvent;
 import android.view.View;
 import java.util.Random;
 
-
-
 public class GameView extends View {
     private static int GET_READY = 1;
     private static int PLAYING = 2;
     private static int GAME_OVER = 3;
-    private int gameState;
+    private int gameState,lives = 3,score = 0,countBricks,bgColor;
     private Paddle paddle;
     private Ball ball;
     private BrickCollection bricks;
     private Paint textPaint,scorePaint,LivesPaint,circlePaint_G_Fill,circlePaint_W_Fill,circlePaint_B_Fill;
-    private int bgColor;
-    private boolean isDraging;
+    private boolean paddleMoving;
     private final int COLS,ROWS;
-    private int lives = 3;
-    private int score = 0;
-    private int countBricks;
-    private float saveBX,saveBY,savePX,savePY;
-    private BrickCollection saveBricks;
-//    private Bitmap life[] = new Bitmap[3];
-    Thread thread_paddle,thread_ball,thread_bricks,thread_col_pad,thread_col_floor;
-    boolean move_ball,collideBrick,collidePaddle,collideFloor;
+    private boolean run_game;
+    private Thread main_thread;
+    private float tx;
+
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         Random r = new Random();
-        ROWS =  r.nextInt(6-2) + 2;
-        COLS =  r.nextInt(7-3) + 3;
-
+        ROWS = r.nextInt(6-2) + 2;
+        COLS = r.nextInt(7-3) + 3;
         countBricks = ROWS * COLS;
+
         textPaint = new Paint();
         textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(60);
         textPaint.setTextAlign(Paint.Align.CENTER);
-
 
         scorePaint = new Paint();
         scorePaint.setColor(Color.GREEN);
@@ -56,7 +48,6 @@ public class GameView extends View {
         circlePaint_G_Fill.setColor(Color.GREEN);
         circlePaint_G_Fill.setStrokeWidth(3);
 
-        //CHECK
         circlePaint_W_Fill = new Paint();
         circlePaint_W_Fill.setStyle(Paint.Style.FILL);
         circlePaint_W_Fill.setColor(Color.WHITE);
@@ -67,32 +58,27 @@ public class GameView extends View {
         circlePaint_B_Fill.setColor(Color.BLACK);
         circlePaint_B_Fill.setStrokeWidth(6);
 
-
         LivesPaint = new Paint();
         LivesPaint.setColor(Color.GREEN);
         LivesPaint.setTextSize(60);
 
-        isDraging = false;
+        paddleMoving = false;
         gameState = GET_READY;
         bgColor = Color.BLACK;
-
-
     }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh){
-//        Log.d("mylog", ">>> onSizeChanged");
-//        Log.d("mylog", ">>> h: "+ h);
-
         super.onSizeChanged(w, h, oldw, oldh);
-
-        paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.YELLOW);
-        // TODO: check why on every move of the ball the ball constructor os call
-        ball = new Ball(w/2,(h-150-h/20),h/40, Color.BLUE);
-        bricks = new BrickCollection(this.ROWS,this.COLS,h, w);
+        if(paddle==null)
+            paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.YELLOW);
+        if(ball==null)
+            ball = new Ball(w/2,(h-150-h/20),h/40, Color.BLUE);
+        if(bricks==null)
+            bricks = new BrickCollection(this.ROWS,this.COLS,h, w);
     }
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         canvas.drawColor(bgColor);
         canvas.drawText("Score: "+score,50,120,scorePaint);
         canvas.drawText("Lives: ",getWidth()-450,120,scorePaint);
@@ -103,156 +89,71 @@ public class GameView extends View {
             paddle.draw(canvas);
             ball.draw(canvas);
             bricks.draw(canvas);
+            run_game=true;
         }
 
         if (gameState == PLAYING) {
             paddle.draw(canvas);
             ball.draw(canvas);
             bricks.draw(canvas);
-            checkCollisionBrick();
-            checkCollisionPaddle();
-            checkCollisionFloor();
-            moveBall();
-            invalidate();
+            game();
         }
 
         if (gameState == GAME_OVER) {
-            // TODO: check if need to call the constructor or need to reset variables
+            run_game=false;
+            bricks.draw(canvas);
+            paddle.draw(canvas);
             if(this.countBricks > 0) {
                 canvas.drawText("GAME OVER -You Loss!", getWidth() / 2, bricks.getHeight()+110, textPaint);
-                paddle.draw(canvas);
-                bricks.draw(canvas);
             }
             else{
                 canvas.drawText("GAME OVER - You WIN!", getWidth() / 2, getHeight() / 2, textPaint);
             }
         }
     }
-
-
-    private void checkCollisionFloor() {
-        collideFloor = true;
-        if(thread_col_floor == null) {
-//            Log.d("mylog", ">>> new thread_col_floor");
-            thread_col_floor = new Thread(new Runnable() {
+    private void game_thread(){
+        if(main_thread == null) {
+            main_thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (collideFloor) {
-                        if(ball.collideWith(getHeight(),getWidth())){
-                            move_ball = false;
-//                            lives--;
-//                            initGame();
-//                            gameState = GET_READY;
-
-                            if (lives==0) {
-                                gameState = GAME_OVER;
-                                collideFloor=false;
-                            }
-
-                            postInvalidate();
-                        }
-                        SystemClock.sleep(10);
+                    while (run_game) {
+                        postInvalidate();
+                        SystemClock.sleep(5);
                     }
-                    thread_col_floor.interrupt();
-                    thread_col_floor=null;
+                    main_thread.interrupt();
+                    main_thread=null;
                 }
             });
-            thread_col_floor.start();
+            main_thread.start();
+        }
+    }
+    private void game(){
+        ball.move(getWidth(),getHeight());
+        if(paddleMoving)
+            paddle.move(getWidth(),tx);
+        if(paddle.collideWith(ball)){
+            ball.setDY(ball.getDY()*(-1));
+        }
+        if(bricks.collideWith(ball)){
+            setScore();
+            countBricks--;
+            if (countBricks == 0) {
+                gameState = GAME_OVER;
+            }
+        }
+        if(ball.collideWith(getHeight(),getWidth())){
+            lives--;
+            initGame();
+            gameState = GET_READY;
+            if (lives==0) {
+                gameState = GAME_OVER;
+            }
         }
     }
     private void initGame() {
         paddle.setX((float)getWidth()/2);
         ball.setX((float)getWidth()/2);
         ball.setY(getHeight()-150-getHeight()/20);
-    }
-    private void checkCollisionPaddle() {
-        collidePaddle = true;
-        if(thread_col_pad == null) {
-//            Log.d("mylog", ">>> new thread_col_paddle");
-            thread_col_pad = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (collidePaddle) {
-                        if(paddle.collideWith(ball)){
-                            move_ball = false;
-                            ball.setDY(ball.getDY()*(-1));
-                            postInvalidate();
-                        }
-                        SystemClock.sleep(10);
-                    }
-                    thread_col_pad.interrupt();
-                    thread_col_pad=null;
-                }
-            });
-            thread_col_pad.start();
-        }
-    }
-    private void checkCollisionBrick(){
-        collideBrick = true;
-        if(thread_bricks == null) {
-//            Log.d("mylog", ">>> new thread_bricks");
-            thread_bricks = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (collideBrick) {
-                        if(bricks.collideWith(ball)){
-                            setScore();
-                            countBricks--;
-                            if (countBricks == 0) {
-                                gameState = GAME_OVER;
-                            }
-                            move_ball = false;
-                            postInvalidate();
-                        }
-                        SystemClock.sleep(10);
-                    }
-                    thread_bricks.interrupt();
-                    thread_bricks=null;
-                }
-            });
-            thread_bricks.start();
-        }
-    }
-    private void moveBall(){
-        move_ball = true;
-        if(thread_ball == null) {
-//            Log.d("mylog", ">>> new thread_ball");
-            thread_ball = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (move_ball) {
-                        ball.move(getWidth(),getHeight());
-                        postInvalidate();
-                        SystemClock.sleep(10);
-                    }
-//                    Log.d("mylog", ">>> finish thread_ball");
-                    thread_ball.interrupt();
-                    thread_ball=null;
-                }
-            });
-            thread_ball.start();
-        }
-    }
-    private void movePaddle(float tx){
-        if(!isDraging) {
-            isDraging = true;
-            if(thread_paddle == null) {
-                thread_paddle = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-//                        Log.d("thread", "paddle: " + tx);
-                        while (isDraging) {
-                            paddle.move(getWidth(),tx);
-                            postInvalidate();
-                            SystemClock.sleep(1);
-                        }
-                        thread_paddle.interrupt();
-                        thread_paddle=null;
-                    }
-                });
-                thread_paddle.start();
-            }
-        }
     }
     public boolean onTouchEvent(MotionEvent event) {
         float tx = event.getX();
@@ -261,33 +162,35 @@ public class GameView extends View {
             case MotionEvent.ACTION_DOWN:
                 if(gameState == GET_READY )
                 {
+                    ball.setSpeed();
+                    run_game=true;
                     gameState = PLAYING;
                     initGame();
-                    invalidate();
+                    game_thread();
                 }
                 else if(gameState == GAME_OVER){
+                    ball.setSpeed();
                     gameState = PLAYING;
+                    run_game=true;
                     this.countBricks = ROWS * COLS;
                     this.score = 0;
                     this.lives = 3;
                     initGame();
                     bricks.createBricks();
-                    invalidate();
+                    game_thread();
                 }
                 else
                 {
-                    Log.d("mylog", ">>> pressing"+tx);
-                    movePaddle(tx);
+                    paddleMoving=true;
+                    this.tx=tx;
                 }
                 break;
-            // TODO ask Ilan what to to do in movement
             case MotionEvent.ACTION_MOVE:
-                isDraging = false;
-                Log.d("mylog", ">>> moving"+tx);
-                movePaddle(tx);
+                paddleMoving=true;
+                this.tx=tx;
                 break;
             case MotionEvent.ACTION_UP:
-                isDraging = false;
+                paddleMoving = false;
                 break;
 
             default:
@@ -313,30 +216,11 @@ public class GameView extends View {
         }
 
     }
-
-    @Override
-    protected void onVisibilityChanged( View changedView, int visibility) {
-        super.onVisibilityChanged(changedView, visibility);
-        if (visibility == View.VISIBLE) {
-            Log.d("mylog", ">>> onResume()");
-            if(saveBricks != null) {
-                ball.setX(saveBX);
-                ball.setY(saveBY);
-                paddle.setX(savePX);
-                paddle.setY(savePY);
-                bricks = saveBricks;
-            }
-        }//onResume called
-        else{
-            Log.d("mylog", ">>> onPause()");
-            isDraging = false;
-            move_ball = false;
-            saveBX=ball.getX();
-            saveBY=ball.getY();
-            savePX=paddle.getX();
-            savePY=paddle.getY();
-            saveBricks = bricks;
-            // onPause() called
-        }
+    public void saveView(){
+        this.run_game=false;
+    }
+    public void resumeView() {
+        this.run_game=true;
+        game_thread();
     }
 }

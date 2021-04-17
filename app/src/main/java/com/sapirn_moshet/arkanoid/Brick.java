@@ -5,11 +5,10 @@ import android.graphics.Paint;
 import android.util.Log;
 
 public class Brick {
-    private float x, y, h, w, dx, dy;
+    private float x, y, h, w;
     private Paint brickPaint;
 
-    public Brick(float x, float y, float h, float w, int color)
-    {
+    public Brick(float x, float y, float h, float w, int color) {
         this.x = x;
         this.y = y;
         this.h = h;
@@ -22,8 +21,8 @@ public class Brick {
     {
         canvas.drawRect(x,y,x+w,y+h,brickPaint);
     }
-
     public boolean collideWith(Ball ball) {
+
         float bx = ball.getX();
         float by = ball.getY();
         float br = ball.getRadius();
@@ -45,37 +44,5 @@ public class Brick {
         return false;
     }
 
-    public float getX()
-    {
-        return x;
-    }
-    public void setX(float x)
-    {
-        this.x = x;
-    }
-    public float getY()
-    {
-        return y;
-    }
-    public void setY(float y)
-    {
-        this.y = y;
-    }
-    public float getW()
-    {
-        return w;
-    }
-    public void setW(float w)
-    {
-        this.w = w;
-    }
-    public float getH()
-    {
-        return h;
-    }
-    public void setH(float y)
-    {
-        this.h = h;
-    }
 
 }

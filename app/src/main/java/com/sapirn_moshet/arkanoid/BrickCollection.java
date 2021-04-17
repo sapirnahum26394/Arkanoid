@@ -19,8 +19,7 @@ public class BrickCollection {
         this.createBricks();
 
     }
-    public void draw(Canvas canvas)
-    {
+    public void draw(Canvas canvas) {
         for (int i=0;i<this.ROWS;i++) {
             for (int j = 0; j < this.COLS; j++) {
                 if (bricks[i][j]!=null) {
@@ -57,9 +56,5 @@ public class BrickCollection {
     public float getHeight()
     {
         return this.bricks_height;
-    }
-    public float getWidth()
-    {
-        return this.width;
     }
 }

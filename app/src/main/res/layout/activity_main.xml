@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <com.sapirn_moshet.arkanoid.GameView
+        android:id="@+id/game_view_ID"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
