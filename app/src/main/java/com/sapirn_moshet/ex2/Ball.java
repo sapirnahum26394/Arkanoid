@@ -1,11 +1,8 @@
-package com.sapirn_moshet.arkanoid;
+package com.sapirn_moshet.ex2;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
-
-import java.util.Random;
 
 public class Ball
 {
@@ -76,10 +73,12 @@ public class Ball
         return false;
     }
     public void setSpeed(){
-        double angle = (Math.random()*(150-30)+30);
+        double angle = 90;
         float speed = (float) ((Math.random()+1) * 5);
-        if(angle > 85 && angle < 95)
-            setSpeed();
+        do{
+            angle = (Math.random()*(150-30)+30);
+        }
+        while (angle > 85 && angle < 95);
         this.dx = ((float) Math.cos(Math.toRadians(angle))*speed);
         this.dy = ((float) -Math.sin(Math.toRadians(angle))*speed);
         Log.d("mylog", "angle: "+angle+" speed: "+speed);

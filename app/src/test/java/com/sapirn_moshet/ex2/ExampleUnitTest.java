@@ -1,4 +1,4 @@
-package com.sapirn_moshet.arkanoid;
+package com.sapirn_moshet.ex2;
 
 import org.junit.Test;
 

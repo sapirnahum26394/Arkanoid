@@ -1,8 +1,7 @@
-package com.sapirn_moshet.arkanoid;
+package com.sapirn_moshet.ex2;
 
-        import android.graphics.Canvas;
-        import android.graphics.Paint;
-        import android.util.Log;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 
 public class Paddle {
     private float x, y, height, width, dx;

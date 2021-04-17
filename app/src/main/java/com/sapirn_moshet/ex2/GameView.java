@@ -1,14 +1,21 @@
-package com.sapirn_moshet.arkanoid;
+package com.sapirn_moshet.ex2;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.SystemClock;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.io.IOException;
 import java.util.Random;
 
 public class GameView extends View {
@@ -19,14 +26,16 @@ public class GameView extends View {
     private Paddle paddle;
     private Ball ball;
     private BrickCollection bricks;
-    private Paint textPaint,scorePaint,LivesPaint,circlePaint_G_Fill,circlePaint_W_Fill,circlePaint_B_Fill;
+    private Paint textPaint,scorePaint,LivesPaint,circlePaint_R_Fill,circlePaint_W_Fill,circlePaint_B_Fill;
     private boolean paddleMoving;
     private final int COLS,ROWS;
     private boolean run_game;
     private Thread main_thread;
     private float tx;
-
-    public GameView(Context context, AttributeSet attrs) {
+    private int touch_sound;
+    SoundPool soundPool;
+    Bitmap b;
+    public GameView(Context context, AttributeSet attrs) throws IOException {
         super(context, attrs);
 
         Random r = new Random();
@@ -40,13 +49,13 @@ public class GameView extends View {
         textPaint.setTextAlign(Paint.Align.CENTER);
 
         scorePaint = new Paint();
-        scorePaint.setColor(Color.GREEN);
+        scorePaint.setColor(Color.parseColor("#ad1457"));
         scorePaint.setTextSize(60);
 
-        circlePaint_G_Fill = new Paint();
-        circlePaint_G_Fill.setStyle(Paint.Style.FILL);
-        circlePaint_G_Fill.setColor(Color.GREEN);
-        circlePaint_G_Fill.setStrokeWidth(3);
+        circlePaint_R_Fill = new Paint();
+        circlePaint_R_Fill.setStyle(Paint.Style.FILL);
+        circlePaint_R_Fill.setColor(Color.parseColor("#ad1457"));
+        circlePaint_R_Fill.setStrokeWidth(3);
 
         circlePaint_W_Fill = new Paint();
         circlePaint_W_Fill.setStyle(Paint.Style.FILL);
@@ -65,17 +74,22 @@ public class GameView extends View {
         paddleMoving = false;
         gameState = GET_READY;
         bgColor = Color.BLACK;
+
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
+        touch_sound = soundPool.load(context,R.raw.beep3,1);
+
+        b= BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_background);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh){
         super.onSizeChanged(w, h, oldw, oldh);
         if(paddle==null)
-            paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.YELLOW);
+            paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.parseColor("#f48fb1"));
         if(ball==null)
-            ball = new Ball(w/2,(h-150-h/20),h/40, Color.BLUE);
+            ball = new Ball(w/2,(h-150-h/20),h/40, Color.WHITE);
         if(bricks==null)
-            bricks = new BrickCollection(this.ROWS,this.COLS,h, w);
+            bricks = new BrickCollection(this.ROWS,this.COLS,h, w,Color.parseColor("#f06292"));
     }
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -83,26 +97,18 @@ public class GameView extends View {
         canvas.drawText("Score: "+score,50,120,scorePaint);
         canvas.drawText("Lives: ",getWidth()-450,120,scorePaint);
         drawLive(canvas);
-
+        paddle.draw(canvas);
+        ball.draw(canvas);
+        bricks.draw(canvas);
         if (gameState == GET_READY) {
             canvas.drawText("Click to PLAY!", getWidth() / 2, bricks.getHeight()+110 , textPaint);
-            paddle.draw(canvas);
-            ball.draw(canvas);
-            bricks.draw(canvas);
             run_game=true;
         }
-
         if (gameState == PLAYING) {
-            paddle.draw(canvas);
-            ball.draw(canvas);
-            bricks.draw(canvas);
             game();
         }
-
         if (gameState == GAME_OVER) {
             run_game=false;
-            bricks.draw(canvas);
-            paddle.draw(canvas);
             if(this.countBricks > 0) {
                 canvas.drawText("GAME OVER -You Loss!", getWidth() / 2, bricks.getHeight()+110, textPaint);
             }
@@ -135,6 +141,7 @@ public class GameView extends View {
             ball.setDY(ball.getDY()*(-1));
         }
         if(bricks.collideWith(ball)){
+            soundPool.play(touch_sound, 1, 1, 0, 0, 1);
             setScore();
             countBricks--;
             if (countBricks == 0) {
@@ -205,12 +212,12 @@ public class GameView extends View {
         int x = getWidth()-220;
 
         for(int i = 0; i < 3-lives; i++){
-            canvas.drawCircle(x, 100, 35, circlePaint_G_Fill);
+            canvas.drawCircle(x, 100, 35, circlePaint_R_Fill);
             canvas.drawCircle(x, 100, 25, circlePaint_B_Fill);
             x += 75;
         }
         for(int i = 0; i < lives; i++){
-            canvas.drawCircle(x, 100, 35, circlePaint_G_Fill);
+            canvas.drawCircle(x, 100, 35, circlePaint_R_Fill);
             canvas.drawCircle(x, 100, 25, circlePaint_W_Fill);
             x += 75;
         }
