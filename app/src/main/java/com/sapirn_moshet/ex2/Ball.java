@@ -66,7 +66,8 @@ public class Ball
     {
         canvas.drawCircle(x, y, radius, ballPaint);
     }
-    public boolean collideWith(int height, int width) {
+//    public boolean collideWith(int height, int width) {
+    public boolean collideWith(int height) {
         if((height-this.y)<=this.getRadius()){
             return true;
         }
