@@ -8,10 +8,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.SystemClock;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -33,7 +36,12 @@ public class GameView extends View {
     private Thread main_thread;
     private float tx;
     private int touch_sound;
-    SoundPool soundPool;
+//    SoundPool soundPool;
+    private MediaPlayer beep;
+
+
+//NEW FOR MOSHE
+
     Bitmap b;
     public GameView(Context context, AttributeSet attrs) throws IOException {
         super(context, attrs);
@@ -69,14 +77,17 @@ public class GameView extends View {
 
         LivesPaint = new Paint();
         LivesPaint.setColor(Color.GREEN);
+        LivesPaint.setTypeface(Typeface.create("Arial", Typeface.ITALIC));
         LivesPaint.setTextSize(60);
 
         paddleMoving = false;
         gameState = GET_READY;
         bgColor = Color.BLACK;
 
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
-        touch_sound = soundPool.load(context,R.raw.beep3,1);
+//        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
+//        touch_sound = soundPool.load(context,R.raw.beep3,1);
+        beep = MediaPlayer.create(context, R.raw.beep);
+
 
         b= BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_background);
     }
@@ -84,16 +95,18 @@ public class GameView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh){
         super.onSizeChanged(w, h, oldw, oldh);
-        if(paddle==null)
+        if(paddle == null)
             paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.parseColor("#f48fb1"));
-        if(ball==null)
+        if(ball == null)
             ball = new Ball(w/2,(h-150-h/20),h/40, Color.WHITE);
-        if(bricks==null)
+        if(bricks == null)
             bricks = new BrickCollection(this.ROWS,this.COLS,h, w,Color.parseColor("#f06292"));
     }
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawColor(bgColor);
+
+
         canvas.drawText("Score: "+score,50,120,scorePaint);
         canvas.drawText("Lives: ",getWidth()-450,120,scorePaint);
         drawLive(canvas);
@@ -111,6 +124,7 @@ public class GameView extends View {
             run_game=false;
             if(this.countBricks > 0) {
                 canvas.drawText("GAME OVER -You Loss!", getWidth() / 2, bricks.getHeight()+110, textPaint);
+//                gameState = GET_READY;
             }
             else{
                 canvas.drawText("GAME OVER - You WIN!", getWidth() / 2, getHeight() / 2, textPaint);
@@ -141,20 +155,38 @@ public class GameView extends View {
             ball.setDY(ball.getDY()*(-1));
         }
         if(bricks.collideWith(ball)){
-            soundPool.play(touch_sound, 1, 1, 0, 0, 1);
+            Log.d("mylog", ">>> beep sound");
+            beep.start();
+//            soundPool.play(touch_sound, 1, 1, 0, 0, 1);
+
             setScore();
             countBricks--;
-            if (countBricks == 0) {
+            if (countBricks == 0) { //win
                 gameState = GAME_OVER;
+                Log.d("mylog", ">>> CHECK COLLIDE WIN");
+//                initGame();
             }
         }
-        if(ball.collideWith(getHeight(),getWidth())){
+//        if(ball.collideWith(getHeight(),getWidth())){
+        if(ball.collideWith(getHeight()-50)){
+            /*
             lives--;
             initGame();
             gameState = GET_READY;
-            if (lives==0) {
+            if (lives == 0) { //lose
                 gameState = GAME_OVER;
+                Log.d("mylog", ">>> CHECK COLLIDE LOSE");
+
             }
+            */
+            lives--;
+            if (lives>0){
+
+                initGame();
+                gameState = GET_READY;
+            }
+            else
+                gameState = GAME_OVER;
         }
     }
     private void initGame() {
@@ -170,19 +202,22 @@ public class GameView extends View {
                 if(gameState == GET_READY )
                 {
                     ball.setSpeed();
-                    run_game=true;
+                    run_game = true;
                     gameState = PLAYING;
                     initGame();
                     game_thread();
                 }
                 else if(gameState == GAME_OVER){
+                    Log.d("mylog", ">>> GAME OVER CHECK");
                     ball.setSpeed();
-                    gameState = PLAYING;
+//                    gameState = PLAYING;
+                    gameState =  GET_READY;
                     run_game=true;
                     this.countBricks = ROWS * COLS;
                     this.score = 0;
                     this.lives = 3;
                     initGame();
+
                     bricks.createBricks();
                     game_thread();
                 }
@@ -206,7 +241,7 @@ public class GameView extends View {
         return true;
     }
     public void setScore(){
-        this.score += 5*lives;
+        this.score += 5 * lives;
     }
     public void drawLive(Canvas canvas){
         int x = getWidth()-220;
