@@ -21,9 +21,7 @@ public class MyReceiver extends BroadcastReceiver
 
 
     @Override
-
-    public void onReceive(Context context, Intent intent)
-    {
+    public void onReceive(Context context, Intent intent) {
         notificationsSetup(context);
         int batteryLevel = intent.getIntExtra("level", 0);
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
@@ -31,18 +29,14 @@ public class MyReceiver extends BroadcastReceiver
             Log.d("mylog", ">>>>> UNDER 10 LEVEL and battery is not charged");
             showNotification(context);
         }
-
-
     }
+
     private void showNotification(Context context) {
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MainActivity.class), 0);
-
-
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notify_bell)
-//                .setContentTitle( "notification battery charged! ("+ notificationID +")")
-                .setContentTitle( "notification battery charged!")
+                .setContentTitle("notification battery charged!")
                 .setContentText("Your battery is less than 10% please charge your phone. !")
                 .setContentIntent(contentIntent)
                 .build();

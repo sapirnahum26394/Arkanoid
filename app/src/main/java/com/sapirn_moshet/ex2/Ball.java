@@ -10,7 +10,6 @@ public class Ball
     private Paint ballPaint;
 
     public Ball(float x, float y, float radius, int color) {
-
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -66,7 +65,6 @@ public class Ball
     {
         canvas.drawCircle(x, y, radius, ballPaint);
     }
-//    public boolean collideWith(int height, int width) {
     public boolean collideWith(int height) {
         if((height-this.y)<=this.getRadius()){
             return true;
@@ -83,5 +81,21 @@ public class Ball
         this.dx = ((float) Math.cos(Math.toRadians(angle))*speed);
         this.dy = ((float) -Math.sin(Math.toRadians(angle))*speed);
         Log.d("mylog", "angle: "+angle+" speed: "+speed);
+    }
+
+    public float get_left() {
+        return x-radius;
+    }
+
+    public float get_right() {
+        return x+radius;
+    }
+
+    public float get_top() {
+        return y-radius;
+    }
+
+    public float get_bottom() {
+        return y+radius;
     }
 }

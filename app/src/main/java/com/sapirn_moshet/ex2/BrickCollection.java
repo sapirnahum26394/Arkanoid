@@ -3,16 +3,18 @@ package com.sapirn_moshet.ex2;
 import android.graphics.Canvas;
 import android.graphics.Color;
 
+import java.util.Random;
+
 public class BrickCollection {
     private Brick bricks[][];
-    private int ROWS,COLS,color;
+    private int ROWS,COLS;
     private float hight,width,bricks_height;
 
-    public BrickCollection(int ROWS, int COLS,float hight,float width, int color){
+    public BrickCollection(int ROWS, int COLS,float hight,float width){
         this.COLS = COLS;
         this.ROWS = ROWS;
         this.hight = hight;
-        this.color = color;
+
         this.width = width;
         this.bricks_height = 0;
         this.bricks = new Brick[ROWS][COLS];
@@ -30,9 +32,12 @@ public class BrickCollection {
     }
     public void createBricks(){
         float x=0,y=250;
+        String[] colors= {"#b380ff","#80b3ff","#adebad","#ffff80","#ffcc99","#ff9999","#d699ff","#ffccee"};
+        int color;
         for (int i=0;i<this.ROWS;i++) {
             for (int j = 0; j < this.COLS; j++) {
-                bricks[i][j] = new Brick(x, y, this.hight / 20, this.width / this.COLS, this.color);
+                color = Color.parseColor(colors[(j-i+ROWS-1)%6]);
+                bricks[i][j] = new Brick(x, y, this.hight / 20, this.width / this.COLS,color);
                 x = x + this.width / this.COLS + 5;
             }
             x=0;

@@ -29,20 +29,17 @@ public class GameView extends View {
     private Paddle paddle;
     private Ball ball;
     private BrickCollection bricks;
-    private Paint textPaint,scorePaint,LivesPaint,circlePaint_R_Fill,circlePaint_W_Fill,circlePaint_B_Fill;
+    private Paint textPaint,scorePaint,circlePaint_R_Fill,circlePaint_W_Fill,circlePaint_B_Fill;
     private boolean paddleMoving;
     private final int COLS,ROWS;
     private boolean run_game;
     private Thread main_thread;
     private float tx;
     private int touch_sound;
-//    SoundPool soundPool;
-    private MediaPlayer beep;
+    SoundPool soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
+//    private MediaPlayer beep;
 
 
-//NEW FOR MOSHE
-
-    Bitmap b;
     public GameView(Context context, AttributeSet attrs) throws IOException {
         super(context, attrs);
 
@@ -57,12 +54,12 @@ public class GameView extends View {
         textPaint.setTextAlign(Paint.Align.CENTER);
 
         scorePaint = new Paint();
-        scorePaint.setColor(Color.parseColor("#ad1457"));
+        scorePaint.setColor(Color.parseColor("#ED553B"));
         scorePaint.setTextSize(60);
 
         circlePaint_R_Fill = new Paint();
         circlePaint_R_Fill.setStyle(Paint.Style.FILL);
-        circlePaint_R_Fill.setColor(Color.parseColor("#ad1457"));
+        circlePaint_R_Fill.setColor(Color.parseColor("#ED553B"));
         circlePaint_R_Fill.setStrokeWidth(3);
 
         circlePaint_W_Fill = new Paint();
@@ -75,32 +72,23 @@ public class GameView extends View {
         circlePaint_B_Fill.setColor(Color.BLACK);
         circlePaint_B_Fill.setStrokeWidth(6);
 
-        LivesPaint = new Paint();
-        LivesPaint.setColor(Color.GREEN);
-        LivesPaint.setTypeface(Typeface.create("Arial", Typeface.ITALIC));
-        LivesPaint.setTextSize(60);
-
         paddleMoving = false;
         gameState = GET_READY;
         bgColor = Color.BLACK;
 
-//        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
-//        touch_sound = soundPool.load(context,R.raw.beep3,1);
-        beep = MediaPlayer.create(context, R.raw.beep);
-
-
-        b= BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_background);
+        touch_sound = soundPool.load(context,R.raw.beep,1);
+//        beep = MediaPlayer.create(context, R.raw.beep);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh){
         super.onSizeChanged(w, h, oldw, oldh);
         if(paddle == null)
-            paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.parseColor("#f48fb1"));
+            paddle = new Paddle(w/2,h-150,h/40,w/COLS, Color.parseColor("#3CAEA3"));
         if(ball == null)
             ball = new Ball(w/2,(h-150-h/20),h/40, Color.WHITE);
         if(bricks == null)
-            bricks = new BrickCollection(this.ROWS,this.COLS,h, w,Color.parseColor("#f06292"));
+            bricks = new BrickCollection(this.ROWS,this.COLS,h, w);
     }
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -156,8 +144,8 @@ public class GameView extends View {
         }
         if(bricks.collideWith(ball)){
             Log.d("mylog", ">>> beep sound");
-            beep.start();
-//            soundPool.play(touch_sound, 1, 1, 0, 0, 1);
+//            beep.start();
+            soundPool.play(touch_sound, 1, 1, 0, 0, 1);
 
             setScore();
             countBricks--;
@@ -167,18 +155,7 @@ public class GameView extends View {
 //                initGame();
             }
         }
-//        if(ball.collideWith(getHeight(),getWidth())){
-        if(ball.collideWith(getHeight()-50)){
-            /*
-            lives--;
-            initGame();
-            gameState = GET_READY;
-            if (lives == 0) { //lose
-                gameState = GAME_OVER;
-                Log.d("mylog", ">>> CHECK COLLIDE LOSE");
-
-            }
-            */
+        if(ball.collideWith(getHeight()-50) || paddle.checkDisqualified(ball)){
             lives--;
             if (lives>0){
 
