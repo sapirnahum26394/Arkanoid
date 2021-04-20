@@ -70,4 +70,10 @@ public class MainActivity extends AppCompatActivity {
         this.game.saveView();
         Log.d("mylog", ">>> onPause()");
     }
+    protected void onDestroy() {
+        super.onDestroy();
+        this.game.destroy();
+        Log.d("mylog", ">>> onDestroy()");
+    }
+
 }

@@ -35,9 +35,7 @@ public class GameView extends View {
     private boolean run_game;
     private Thread main_thread;
     private float tx;
-    private int touch_sound;
-    SoundPool soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
-//    private MediaPlayer beep;
+    private MediaPlayer beep;
 
 
     public GameView(Context context, AttributeSet attrs) throws IOException {
@@ -75,9 +73,7 @@ public class GameView extends View {
         paddleMoving = false;
         gameState = GET_READY;
         bgColor = Color.BLACK;
-
-        touch_sound = soundPool.load(context,R.raw.beep,1);
-//        beep = MediaPlayer.create(context, R.raw.beep);
+        beep = MediaPlayer.create(context, R.raw.beep);
     }
 
     @Override
@@ -89,6 +85,7 @@ public class GameView extends View {
             ball = new Ball(w/2,(h-150-h/20),h/40, Color.WHITE);
         if(bricks == null)
             bricks = new BrickCollection(this.ROWS,this.COLS,h, w);
+
     }
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -144,15 +141,13 @@ public class GameView extends View {
         }
         if(bricks.collideWith(ball)){
             Log.d("mylog", ">>> beep sound");
-//            beep.start();
-            soundPool.play(touch_sound, 1, 1, 0, 0, 1);
+            beep.start();
 
             setScore();
             countBricks--;
             if (countBricks == 0) { //win
                 gameState = GAME_OVER;
                 Log.d("mylog", ">>> CHECK COLLIDE WIN");
-//                initGame();
             }
         }
         if(ball.collideWith(getHeight()-50) || paddle.checkDisqualified(ball)){
@@ -187,7 +182,6 @@ public class GameView extends View {
                 else if(gameState == GAME_OVER){
                     Log.d("mylog", ">>> GAME OVER CHECK");
                     ball.setSpeed();
-//                    gameState = PLAYING;
                     gameState =  GET_READY;
                     run_game=true;
                     this.countBricks = ROWS * COLS;
@@ -241,5 +235,11 @@ public class GameView extends View {
     public void resumeView() {
         this.run_game=true;
         game_thread();
+    }
+
+    public void destroy() {
+        this.run_game=false;
+        if(beep!=null)
+            beep.stop();
     }
 }
