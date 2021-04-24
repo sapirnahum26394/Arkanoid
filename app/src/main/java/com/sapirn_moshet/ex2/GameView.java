@@ -1,23 +1,15 @@
 package com.sapirn_moshet.ex2;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.SoundPool;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
 import java.io.IOException;
 import java.util.Random;
 
@@ -36,7 +28,6 @@ public class GameView extends View {
     private Thread main_thread;
     private float tx;
     private MediaPlayer beep;
-
 
     public GameView(Context context, AttributeSet attrs) throws IOException {
         super(context, attrs);
@@ -90,7 +81,6 @@ public class GameView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawColor(bgColor);
-
 
         canvas.drawText("Score: "+score,50,120,scorePaint);
         canvas.drawText("Lives: ",getWidth()-450,120,scorePaint);
@@ -188,7 +178,6 @@ public class GameView extends View {
                     this.score = 0;
                     this.lives = 3;
                     initGame();
-
                     bricks.createBricks();
                     game_thread();
                 }
@@ -206,8 +195,6 @@ public class GameView extends View {
                 paddleMoving = false;
                 break;
 
-            default:
-                throw new IllegalStateException("Unexpected value: " + event.getAction());
         }
         return true;
     }
@@ -236,7 +223,6 @@ public class GameView extends View {
         this.run_game=true;
         game_thread();
     }
-
     public void destroy() {
         this.run_game=false;
         if(beep!=null)

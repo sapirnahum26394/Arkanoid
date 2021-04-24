@@ -25,50 +25,12 @@ public class Paddle {
         if(get_right() >= ball.get_left() && get_left() <= ball.get_right()
                     && get_bottom() >= ball.get_top() && get_top() <= ball.get_bottom())
             return true;
-//        if (ball.getX()<x)
-//            return true;
         return false;
     }
-//
-//        float bx = ball.getX();
-//        float by = ball.getY();
-//        float br = ball.getRadius();
-//
-//        double Distance_x = Math.abs(bx - this.x) + Math.abs(ball.getDX());
-//        double Distance_y = Math.abs(by - this.y + this.height / 2) + Math.abs(ball.getDY());
-//        double corners = (Distance_x - this.width / 2) * (Distance_x - this.width / 2) + (Distance_y - this.height / 2) * (Distance_y - this.height / 2);
-//
-//        if (Distance_x > (this.width / 2 + br)) {
-//            return false;
-//        }
-//        if (Distance_y > (this.height / 2 + br)) {
-//            return false;
-//        }
-//
-//        if (Distance_y <= (this.height / 2 + br) && (by + br - ball.getDY()) <= (y - height)) {
-//            return true;
-//        }
-//        if (Distance_x <= (this.width / 2 + br)) {
-//            return true;
-//        }
-//        if (corners <= (br * br)) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
     public boolean checkDisqualified(Ball ball) {
         if(get_right() >= ball.get_left() && get_left() <= ball.get_right() && ball.get_bottom()>get_top())
             return true;
         return false;
-    //        float by = ball.getY();
-//        float bx = ball.getX();
-//        float br = ball.getRadius();
-//        if ((by+br)>=(y-height) && ((bx-br)==(x-width/2) || (bx+br)==(x+width/2)))
-//            {
-//                return true;
-//            }
-//        return false;
     }
     public void move(int w,float tx) {
         if( tx>0 && tx<w/2 ) {// left
@@ -85,19 +47,15 @@ public class Paddle {
     {
         this.x = x;
     }
-
     public float get_left() {
         return x-width/2;
     }
-
     public float get_right() {
         return x+width/2;
     }
-
     public float get_top() {
         return y-height;
     }
-
     public float get_bottom() {
         return y;
     }

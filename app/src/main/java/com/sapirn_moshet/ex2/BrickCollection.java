@@ -3,7 +3,6 @@ package com.sapirn_moshet.ex2;
 import android.graphics.Canvas;
 import android.graphics.Color;
 
-import java.util.Random;
 
 public class BrickCollection {
     private Brick bricks[][];

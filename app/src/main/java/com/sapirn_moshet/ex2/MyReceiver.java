@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.util.Log;
-
 import androidx.core.app.NotificationCompat;
 
 public class MyReceiver extends BroadcastReceiver
@@ -18,8 +17,6 @@ public class MyReceiver extends BroadcastReceiver
     private static final String CHANNEL_ID = "channel_main";
     private static final CharSequence CHANNEL_NAME = "Main Channel";
     private NotificationManager notificationManager;
-
-
     @Override
     public void onReceive(Context context, Intent intent) {
         notificationsSetup(context);
@@ -30,7 +27,6 @@ public class MyReceiver extends BroadcastReceiver
             showNotification(context);
         }
     }
-
     private void showNotification(Context context) {
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
                 new Intent(context, MainActivity.class), 0);
